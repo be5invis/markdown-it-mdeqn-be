@@ -9,7 +9,7 @@ const B = Node("b");
 const I = Node("i");
 const Span = Node("span");
 
-abstract class Box {
+export abstract class Box {
 	constructor(protected readonly param: Param) {}
 	// Layout properties
 	public height = 0;
