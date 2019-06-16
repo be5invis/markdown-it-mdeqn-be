@@ -40,6 +40,7 @@ export const DefaultParam: Param = {
 	LINE_HEIGHT,
 	CHAR_ASC,
 	CHAR_DESC,
+	ITALIC_SLANT: Math.tan((10 / 180) * Math.PI), // 10°
 	STACK_MIDDLE,
 	FRAC_MIDDLE,
 	OPERATOR_ASC,
@@ -53,8 +54,8 @@ export const DefaultParam: Param = {
 	SUB_BOTTOM_TOLERENCE,
 	POSITION_SHIFT,
 	BIGOP_SHIFT,
-	SSSTACK_MARGIN_SUP,
-	SSSTACK_MARGIN_SUB,
+	LIMITS_MARGIN_SUP: SSSTACK_MARGIN_SUP,
+	LIMITS_MARGIN_SUB: SSSTACK_MARGIN_SUB,
 	BRACKET_SHIFT,
 	BRACKET_SHIFT_2,
 	BRACKET_ASC,
@@ -69,5 +70,17 @@ export const DefaultParam: Param = {
 	INTEGRATE_SHIFT,
 	BRACKET_GEARS,
 	ROOT_KERN,
-	ROOT_RISE
+	ROOT_RISE,
+	MATRIX_SPACE: 1 / 4,
+	charMetricOverride: {},
+	kernGroupBefore: {},
+	kernGroupAfter: {},
+	kernAssignments: [
+		{ groupBefore: "Bin", groupAfter: "*", value: 0.25, priority: 100, allowBreak: 1 },
+		{ groupBefore: "*", groupAfter: "Bin", value: 0.25, priority: 100, allowBreak: 0 },
+		{ groupBefore: "Rel", groupAfter: "*", value: 0.25, priority: 100, allowBreak: 3 },
+		{ groupBefore: "*", groupAfter: "Rel", value: 0.25, priority: 100, allowBreak: 2 },
+		{ groupBefore: "Space", groupAfter: "*", value: 0, priority: 1000 },
+		{ groupBefore: "*", groupAfter: "Space", value: 0, priority: 1000 }
+	]
 };

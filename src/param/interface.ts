@@ -2,6 +2,7 @@ export interface Param {
 	readonly LINE_HEIGHT: number;
 	readonly CHAR_ASC: number;
 	readonly CHAR_DESC: number;
+	readonly ITALIC_SLANT: number;
 	readonly STACK_MIDDLE: number;
 	readonly FRAC_MIDDLE: number;
 	readonly OPERATOR_ASC: number;
@@ -15,8 +16,8 @@ export interface Param {
 	readonly SUB_BOTTOM_TOLERENCE: number;
 	readonly POSITION_SHIFT: number;
 	readonly BIGOP_SHIFT: number;
-	readonly SSSTACK_MARGIN_SUP: number;
-	readonly SSSTACK_MARGIN_SUB: number;
+	readonly LIMITS_MARGIN_SUP: number;
+	readonly LIMITS_MARGIN_SUB: number;
 	readonly BRACKET_SHIFT: number;
 	readonly BRACKET_SHIFT_2: number;
 	readonly BRACKET_ASC: number;
@@ -32,4 +33,19 @@ export interface Param {
 	readonly INTEGRATE_SHIFT: number;
 	readonly ROOT_KERN: number;
 	readonly ROOT_RISE: number;
+
+	readonly MATRIX_SPACE: number;
+
+	readonly charMetricOverride: { [key: string]: { ascender: number; descender: number } };
+	readonly kernGroupBefore: { [key: string]: string };
+	readonly kernGroupAfter: { [key: string]: string };
+	readonly kernAssignments: KernAssignment[];
+}
+
+export interface KernAssignment {
+	readonly groupBefore: string;
+	readonly groupAfter: string;
+	readonly value: number;
+	readonly priority?: number;
+	readonly allowBreak?: number;
 }

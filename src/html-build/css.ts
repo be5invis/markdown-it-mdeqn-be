@@ -1,8 +1,10 @@
+import paramCase from "param-case";
+
 export default function css(props: { [key: string]: number | string }) {
 	let s = "";
 	for (const key in props) {
 		if (s) s += "; ";
-		s += `${key}:${props[key]}`;
+		s += `${paramCase(key)}:${props[key]}`;
 	}
 	return s;
 }
