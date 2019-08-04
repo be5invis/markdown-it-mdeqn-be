@@ -11,41 +11,24 @@ export enum TokenType {
 }
 export type Token = { type: TokenType; c: string };
 
-export type Form = Token | Invoke;
-export interface Invoke {
-	macro: Macro;
-	args: Form[];
-}
-export function Invoke(macro: Macro, ...args: Form[]): Invoke {
-	return { macro, args };
-}
-
-export function isToken(form: Form): form is Token {
-	return (form as any).type;
-}
-
-export interface Macro {
+export interface Macro<F> {
 	readonly arity: number;
-	call(builder: Builder, ...args: Form[]): Box;
+	call(...args: F[]): Box;
 }
-export function Macro(f: (b: Builder, ...args: Form[]) => Box, arity = f.length - 1): Macro {
+export function Macro<F>(f: (...args: F[]) => Box, arity = f.length - 1): Macro<F> {
 	return {
 		call: f,
 		arity
 	};
 }
 
-export type Scope = { [key: string]: Macro };
-export type MacroRegisterer = (s: Scope) => void;
+export type Scope<F> = { [key: string]: Macro<F> };
+export type MacroRegisterer<F> = (s: Scope<F>) => void;
 
-export interface Builder {
-	readonly param: Param;
-	build(form: Form): Box;
-}
-
-export interface Primitives {
-	empty: Macro;
-	HCombine: Macro;
-	brackEnclosure: Macro;
-	parenEnclosure: Macro;
+export interface Primitives<F> {
+	empty(): F;
+	hCombine(...args: F[]): F;
+	brackEnclosure(arg: F): F;
+	parenEnclosure(arg: F): F;
+	processToken(arg: Token): F;
 }

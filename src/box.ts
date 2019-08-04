@@ -133,14 +133,14 @@ export class OpBox extends CBox {
 	constructor(
 		param: Param,
 		protected c: string,
-		protected tag: string,
+		protected tag: string = "op",
 		protected noBreak: boolean = false
 	) {
 		super(param, c);
 		this.kernGroupBefore = this.kernGroupAfter = tag;
 	}
 	public write() {
-		return Span({ class: this.tag || "op" }, text(this.c));
+		return Span({ class: this.tag }, text(this.c));
 	}
 }
 
@@ -250,7 +250,7 @@ export class FracBox extends Box {
 }
 
 export class StackBox extends Box {
-	constructor(param: Param, protected parts: Box[]) {
+	constructor(param: Param, public parts: Box[]) {
 		super(param);
 		let v = 0;
 		for (let j = 0; j < parts.length; j++) {
@@ -344,7 +344,7 @@ export class SupSubPile extends Box {
 	protected readonly m_sub: Box;
 	constructor(
 		param: Param,
-		protected vBase: Box,
+		public readonly vBase: Box,
 		public readonly sup: null | undefined | Box,
 		public readonly sub: null | undefined | Box
 	) {
@@ -381,6 +381,26 @@ export class SupSubPile extends Box {
 			[this.param.SS_SIZE, this.param.SS_SIZE],
 			[0, 0] // TODO: italic correction
 		);
+	}
+}
+
+export class SupSubBox extends Box {
+	// "Amended" superscript and subscript boxes for rendering
+	// Public members are for building composites
+	protected pile: SupSubPile;
+	constructor(
+		param: Param,
+		public readonly base: Box,
+		public readonly sup: null | undefined | Box,
+		public readonly sub: null | undefined | Box
+	) {
+		super(param);
+		this.pile = new SupSubPile(param, base, sup, sub);
+		this.height = this.pile.height;
+		this.depth = this.pile.depth;
+	}
+	public write() {
+		return this.base.write() + this.pile.write();
 	}
 }
 
