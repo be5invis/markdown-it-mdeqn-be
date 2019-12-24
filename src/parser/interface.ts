@@ -1,5 +1,4 @@
 import { Box } from "../box";
-import { Param } from "../param";
 
 export enum TokenType {
 	ID = 1,

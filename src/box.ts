@@ -70,6 +70,12 @@ export class CBox extends Box {
 		this.height = param.CHAR_ASC;
 		this.depth = param.CHAR_DESC;
 	}
+	public append(s: string) {
+		this.c += s;
+	}
+	public getContent() {
+		return this.c;
+	}
 	public isEmpty() {
 		return !this.c;
 	}
@@ -275,20 +281,20 @@ function makeSpace(distance: number): string {
 }
 
 export class MatrixBox extends Box {
-	private rows: number;
-	private columns: number;
+	public rows: number;
+	public columns: number;
 	private rowHeights: number[];
 	private rowDepths: number[];
 	constructor(
 		param: Param,
-		protected boxes: (Box | null | undefined)[][],
-		protected alignments: string,
+		public boxes: (Box | null | undefined)[][],
+		protected alignments: string = "",
 		protected joiner: number = param.MATRIX_SPACE
 	) {
 		super(param);
 		this.rows = boxes.length;
 		this.columns = 0;
-		this.alignments = alignments || "";
+		this.alignments = alignments;
 		let rowHeights = [];
 		let rowDepths = [];
 		let v = 0;
@@ -534,9 +540,9 @@ export class HBox extends Box {
 export class BBox extends Box {
 	constructor(
 		params: Param,
-		protected readonly left: BracketStart,
-		protected readonly content: Box,
-		protected readonly right: BracketEnd
+		public readonly left: BracketStart,
+		public readonly content: Box,
+		public readonly right: BracketEnd
 	) {
 		super(params);
 		this.height = content.height;
