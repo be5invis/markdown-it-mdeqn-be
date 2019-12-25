@@ -1,18 +1,19 @@
-import * as B from "../../box";
+import * as B from "../../layout/box";
 import { Param } from "../../param";
 import { Macro, Scope } from "../interface";
 
-export function LetterMacros(par: Param, macros: Scope<B.Box>) {
-	const op = (s: string) => Macro(() => new B.OpBox(par, s));
+export function OperatorMacros(par: Param, macros: Scope<B.Box>) {
+	const op = (s: string) => Macro(() => new B.OpBox(par, s, "Bin"));
+	const rel = (s: string) => Macro(() => new B.OpBox(par, s, "Rel"));
 	const sym = (s: string) => Macro(() => new B.CBox(par, s));
-	const punct = (s: string) => Macro(() => new B.CSBox(par, s, "op", {}));
+	const punct = (s: string) => Macro(() => new B.OpBox(par, s, "Punct"));
 
 	const bigop = (s: string) =>
 		Macro(
 			() =>
 				new B.BigOpBox(
 					par,
-					new B.OpBox(par, s, "bop", true),
+					new B.OpBox(par, s, "BigOperator"),
 					par.OPERATOR_SCALE,
 					par.ASCENDER_OPERATOR,
 					par.DESCENDER_OPERATOR,
@@ -24,7 +25,7 @@ export function LetterMacros(par: Param, macros: Scope<B.Box>) {
 			() =>
 				new B.BigOpBox(
 					par,
-					new B.OpBox(par, s, "bop", true),
+					new B.OpBox(par, s, "BigOperator"),
 					par.INTEGRATE_SCALE,
 					par.ASCENDER_INTEGRATE,
 					par.DESCENDER_INTEGRATE,
@@ -274,6 +275,7 @@ export function LetterMacros(par: Param, macros: Scope<B.Box>) {
 	macros.percent = sym("\u0025");
 	macros.ampersand = sym("\u0026");
 	macros.period = punct("\u002E");
+	macros.comma = punct(",");
 	macros.dot = sym("\u002E");
 	macros.mathslash = sym("\u002F");
 	macros.question = sym("\u003F");

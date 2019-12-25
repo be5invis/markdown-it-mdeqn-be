@@ -1,4 +1,4 @@
-import * as B from "../../box";
+import * as B from "../../layout/box";
 import { Param } from "../../param";
 import { Macro, Scope } from "../interface";
 

@@ -1,7 +1,8 @@
-import { em, HtmlProps, Node, style, text } from "./html-build";
+import { em, HtmlProps, Node, style, text } from "../html-build";
+import { Param } from "../param";
+import { KernAssignment } from "../param/interface";
+
 import { KernGroup } from "./kern";
-import { Param } from "./param";
-import { KernAssignment } from "./param/interface";
 
 const Var = Node("var");
 const Code = Node("code");
@@ -45,7 +46,7 @@ export abstract class Box {
 					style({
 						top: em((height - rises[j]) / scale - box.height),
 						...(xs ? { left: em(xs) } : {}),
-						...(scale !== 1 ? { fontSize: 1 } : {})
+						...(scale !== 1 ? { fontSize: em(scale) } : {})
 					}),
 					box.write()
 				)
@@ -136,12 +137,7 @@ export class SltBox extends CBox {
 }
 
 export class OpBox extends CBox {
-	constructor(
-		param: Param,
-		protected c: string,
-		protected tag: string = "op",
-		protected noBreak: boolean = false
-	) {
+	constructor(param: Param, protected c: string, protected tag: string) {
 		super(param, c);
 		this.kernGroupBefore = this.kernGroupAfter = tag;
 	}
@@ -162,14 +158,14 @@ export class BracketStart extends CBox {
 	public kernGroupBefore = "Bracket/Outside";
 	public kernGroupAfter = "Bracket/Inside";
 	public write() {
-		return Span({ class: "bracket-start" }, text(this.c));
+		return Span({ class: "BracketStart" }, text(this.c));
 	}
 }
 export class BracketEnd extends CBox {
 	public kernGroupBefore = "Bracket/Inside";
 	public kernGroupAfter = "Bracket/Outside";
 	public write() {
-		return Span({ class: "bracket-end" }, text(this.c));
+		return Span({ class: "BracketEnd" }, text(this.c));
 	}
 }
 
@@ -205,6 +201,17 @@ export class RaiseBox extends Box {
 	}
 	public write() {
 		return Box.arrange(this.param, [this.content], [this.raise], this.height, this.depth);
+	}
+}
+
+export class SyncDimBox extends Box {
+	constructor(param: Param, protected content: Box, height: number, depth: number) {
+		super(param);
+		this.height = height;
+		this.depth = depth;
+	}
+	public write() {
+		return Box.arrange(this.param, [this.content], [0], this.height, this.depth);
 	}
 }
 
@@ -445,7 +452,8 @@ export class LimitsBox extends Box {
 			rises,
 			this.height,
 			this.depth,
-			"sss"
+			"sss",
+			[this.param.SS_SIZE, 1, this.param.SS_SIZE]
 		);
 	}
 }
@@ -486,7 +494,7 @@ function findMatchingKernAssignment(param: Param, before: Box, after: Box) {
 		matches.push(asg);
 	}
 	if (matches.length) {
-		matches.sort((a, b) => (a.priority || 0) - (b.priority || 0));
+		matches.sort((a, b) => (b.priority || 0) - (a.priority || 0));
 		return matches[0];
 	} else {
 		return null;
@@ -515,12 +523,16 @@ export class HBox extends Box {
 		this.kernGroupAfter = bx[bx.length - 1].kernGroupAfter;
 		this.slantAfter = bx[bx.length - 1].slantAfter;
 	}
-	public static writeKern(param: Param, before: Box, after: Box) {
+	public static writeKern(param: Param, before: Box, after: Box, s?: string) {
 		const kern = findMatchingKernAssignment(param, before, after);
-		if (kern) {
-			return Span({ class: "kern" }, style({ marginLeft: em(kern.value) }));
+		if (kern && kern.value) {
+			return Span(
+				{ class: "kern" },
+				style({ marginLeft: em(kern.value) }),
+				s || after.write()
+			);
 		} else {
-			return after.write;
+			return s || after.write();
 		}
 	}
 	public write() {
@@ -530,7 +542,6 @@ export class HBox extends Box {
 		for (let j = 1; j < this.boxes.length; j++) {
 			const box = this.boxes[j];
 			buf += HBox.writeKern(this.param, boxBefore, box);
-			buf += box.write();
 			boxBefore = box;
 		}
 		return buf;
@@ -585,11 +596,14 @@ export class BBox extends Box {
 					? ""
 					: Span({ class: "e bn l" }, this.left.write()) +
 					  HBox.writeKern(this.param, this.left, this.content)) +
-				this.content.write() +
 				(this.right.isEmpty()
 					? ""
-					: HBox.writeKern(this.param, this.content, this.right) +
-					  Span({ class: "e bn r" }, this.right.write()))
+					: HBox.writeKern(
+							this.param,
+							this.content,
+							this.right,
+							Span({ class: "e bn r" }, this.right.write())
+					  ))
 			);
 		} else {
 			const SCALE_H = 1 + Math.pow(SCALE_V - 1, 0.3) * 0.375;

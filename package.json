@@ -26,8 +26,10 @@
 	"author": "Renzhi Li aka Belleve Invis<belleve@typeof.net>",
 	"license": "MIT",
 	"dependencies": {
-		"param-case": "^2.1.1",
-		"tslib": "~1.9.0"
+		"param-case": "^3.0.3",
+		"tslib": "~1.9.0",
+		"markdown-it": "^10.0.0",
+		"@types/markdown-it": "^0.0.9"
 	},
 	"ava": {
 		"files": [

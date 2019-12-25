@@ -1,6 +1,6 @@
 import { Token, TokenType } from "./interface";
 
-const reToken = /("(?:[^\\\"]|\\.)*")|(`(?:[^`]|``)*`)|([\[\(\{<]:|:[\]\}\)>])|(:?[a-zA-Z0-9\u0080-\uffff]+:?|\.\d+)|([\[\]\(\)\{\}])|([\.\,\;]|[\/<>?:'|\\\-_+=~!@#$%^&*]+)/g;
+const reToken = /(\\?\r?\n)|("(?:[^\\\"]|\\.)*")|(`(?:[^`]|``)*`)|([\[\(\{<]:|:[\]\}\)>])|(:?[a-zA-Z0-9\u0080-\uffff]+:?|\.\d+)|([\[\]\(\)\{\}])|([\.\,\;]|[\/<>?:'|\\\-_+=~!@#$%^&*]+)/g;
 function walk(
 	r: RegExp,
 	s: string,
@@ -27,8 +27,9 @@ export function lex(s: string) {
 	walk(
 		reToken,
 		s,
-		function(m, text, tt, rs, id, b, sy) {
-			if (text) q.push({ type: TokenType.TEXT, c: text.replace(/\\"/g, '"') });
+		function(m, newline, text, tt, rs, id, b, sy) {
+			if (newline) q.push({ type: TokenType.NEWLINE, c: newline });
+			if (text) q.push({ type: TokenType.TEXT, c: text.slice(1, -1).replace(/\\"/g, '"') });
 			if (tt) q.push({ type: TokenType.TT, c: tt });
 			if (rs) q.push({ type: TokenType.SYMBOL, c: rs });
 			if (id) q.push({ type: TokenType.ID, c: id });

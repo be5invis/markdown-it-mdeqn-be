@@ -1,7 +1,15 @@
-import * as Boxes from "../box";
+import * as Boxes from "../layout/box";
 import { Param } from "../param";
 
-import { Macro, Primitives, Scope, Token, TokenType } from "./interface";
+import {
+	DisplayCell,
+	DisplayCellType,
+	Macro,
+	Primitives,
+	Scope,
+	Token,
+	TokenType
+} from "./interface";
 
 export class Compiler {
 	constructor(
@@ -11,11 +19,39 @@ export class Compiler {
 	) {}
 	private j = 0;
 
-	public expr() {
+	public display() {
+		let cells: DisplayCell[][] = [];
+		cells.push([{ type: DisplayCellType.CELL, cell: this.inline() }]);
+		while (this.j < this.q.length) {
+			const token = this.q[this.j];
+			if (!token || !this.isEndExpression(token)) break;
+			this.j++;
+
+			const cellContent = this.inline();
+			if (token.type === TokenType.NEWLINE) {
+				cells.push([{ type: DisplayCellType.CELL, cell: cellContent }]);
+			} else if (token.c === "#") {
+				cells[cells.length - 1].push({
+					type: DisplayCellType.CROSS_REF,
+					cell: cellContent
+				});
+			} else {
+				cells[cells.length - 1].push({ type: DisplayCellType.CELL, cell: cellContent });
+			}
+		}
+		return cells;
+	}
+
+	public inline() {
 		let terms: Boxes.Box[] = [];
-		const token = this.q[this.j];
-		while (token && !this.isEndBracket(token)) {
-			if (this.macros[token.c] && this.macros[token.c].arity) {
+		while (this.j < this.q.length) {
+			const token = this.q[this.j];
+			if (!token || this.isEndBracket(token) || this.isEndExpression(token)) break;
+			if (token.type === TokenType.NEWLINE) {
+				this.j++;
+				continue;
+			}
+			if (this.macros[token.c]) {
 				let macroName = token.c;
 				let theMacro = this.macros[macroName];
 				terms = this.macroCall(theMacro, macroName, terms);
@@ -34,45 +70,56 @@ export class Compiler {
 			(token.c === ")" || token.c === "]" || token.c === "}")
 		);
 	}
+	private isEndExpression(token: Token) {
+		return (
+			(token.type === TokenType.NEWLINE && token.c[0] !== "\\") ||
+			(token.type === TokenType.SYMBOL && (token.c === "&" || token.c === "#"))
+		);
+	}
 
 	private macroCall(theMacro: Macro<Boxes.Box>, macroName: string, terms: Boxes.Box[]) {
 		let arity = theMacro.arity;
 		this.j++;
-		if (/^:/.test(macroName)) {
-			terms = terms.slice(0, -arity).concat(theMacro.call(...terms.slice(-arity)));
-		} else if (/:$/.test(macroName)) {
-			let parameters = [];
-			for (let i = 0; i < arity; i++) {
-				parameters.push(this.term());
-			}
-			terms.push(theMacro.call(...parameters));
-		} else {
-			let parameters;
-			if (terms.length) {
-				parameters = [terms[terms.length - 1]];
-				terms.length -= 1;
+		if (arity) {
+			if (/^:/.test(macroName)) {
+				terms = terms.slice(0, -arity).concat(theMacro.call(...terms.slice(-arity)));
+			} else if (/:$/.test(macroName)) {
+				let parameters = [];
+				for (let i = 0; i < arity; i++) {
+					parameters.push(this.term());
+				}
+				terms.push(theMacro.call(...parameters));
 			} else {
-				parameters = [this.primitives.empty()];
+				let parameters;
+				if (terms.length) {
+					parameters = [terms[terms.length - 1]];
+					terms.length -= 1;
+				} else {
+					parameters = [this.primitives.empty()];
+				}
+				for (let i = 1; i < arity; i++) {
+					parameters.push(this.term());
+				}
+				terms.push(theMacro.call(...parameters));
 			}
-			for (let i = 1; i < arity; i++) {
-				parameters.push(this.term());
-			}
-			terms.push(theMacro.call(...parameters));
+		} else {
+			terms.push(theMacro.call());
 		}
 		return terms;
 	}
 
 	public term() {
-		let token = this.q[this.j];
+		const token = this.q[this.j];
 		if (token.type === TokenType.BRACKET && token.c === "(") return this.parenGroup();
 		if (token.type === TokenType.BRACKET && token.c === "[") return this.brackGroup();
 		if (token.type === TokenType.BRACKET && token.c === "{") return this.braceGroup();
+		this.j++;
 		return this.primitives.processToken(token);
 	}
 
 	private braceGroup() {
 		this.j++;
-		let r = this.expr();
+		let r = this.inline();
 		if (!this.q[this.j] || this.q[this.j].c !== "}") throw new Error("Mismatch bracket!");
 		this.j++;
 		return r;
@@ -80,7 +127,7 @@ export class Compiler {
 
 	private brackGroup() {
 		this.j++;
-		let r = this.expr();
+		let r = this.inline();
 		if (!this.q[this.j] || this.q[this.j].c !== "]") throw new Error("Mismatch bracket!");
 		this.j++;
 		return this.primitives.brackEnclosure(r);
@@ -88,7 +135,7 @@ export class Compiler {
 
 	private parenGroup() {
 		this.j++;
-		let r = this.expr();
+		let r = this.inline();
 		if (!this.q[this.j] || this.q[this.j].c !== ")") throw new Error("Mismatch bracket!");
 		this.j++;
 		return this.primitives.parenEnclosure(r);
@@ -130,7 +177,7 @@ export class BoxPrimitives implements Primitives<Boxes.Box> {
 		} else if (token.type === TokenType.TT) {
 			return new Boxes.CodeBox(this.param, token.c.slice(1, -1).replace(/``/g, "`"));
 		} else if (token.type === TokenType.SYMBOL) {
-			return new Boxes.OpBox(this.param, token.c);
+			return new Boxes.OpBox(this.param, token.c, "Bin");
 		} else {
 			return new Boxes.CBox(this.param, token.c);
 		}

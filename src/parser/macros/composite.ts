@@ -1,4 +1,4 @@
-import * as B from "../../box";
+import * as B from "../../layout/box";
 import { Param } from "../../param";
 import { Macro, Scope } from "../interface";
 
@@ -88,7 +88,7 @@ export function MatrixCompositeMacros(par: Param, macros: Scope<B.Box>) {
 		if (!(v instanceof B.MatrixBox)) return new B.MatrixBox(par, [[v]]);
 		else return v;
 	}
-	macros["&"] = Macro((_left, _right) => {
+	macros["&&"] = Macro((_left, _right) => {
 		const left = wrapMatrix(_left),
 			right = wrapMatrix(_right);
 

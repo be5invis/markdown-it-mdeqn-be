@@ -1,6 +1,7 @@
-import { Box } from "../box";
+import { Box } from "../layout/box";
 
 export enum TokenType {
+	NEWLINE = 0,
 	ID = 1,
 	BRACKET = 2,
 	SYMBOL = 3,
@@ -14,7 +15,7 @@ export interface Macro<F> {
 	readonly arity: number;
 	call(...args: F[]): Box;
 }
-export function Macro<F>(f: (...args: F[]) => Box, arity = f.length - 1): Macro<F> {
+export function Macro<F>(f: (...args: F[]) => Box, arity = f.length): Macro<F> {
 	return {
 		call: f,
 		arity
@@ -31,3 +32,12 @@ export interface Primitives<F> {
 	parenEnclosure(arg: F): F;
 	processToken(arg: Token): F;
 }
+
+export enum DisplayCellType {
+	CELL = 1,
+	CROSS_REF = 2
+}
+export type DisplayCell = {
+	type: DisplayCellType;
+	cell: Box;
+};

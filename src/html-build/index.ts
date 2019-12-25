@@ -1,4 +1,4 @@
-import css from "./css";
+import { css } from "./css";
 
 export { em } from "./css";
 
@@ -32,7 +32,7 @@ export function Node(tag: string) {
 			}
 		}
 		if (!children.length) {
-			return `<${tag} ${joinProps(props)}/>`;
+			return `<${tag} ${joinProps(props)}></${tag}>`;
 		} else {
 			return `<${tag} ${joinProps(props)}>${children.join("")}</${tag}>`;
 		}
