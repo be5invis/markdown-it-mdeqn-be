@@ -5,6 +5,7 @@ import { Macro, Scope } from "../interface";
 export function OperatorMacros(par: Param, macros: Scope<B.Box>) {
 	const op = (s: string) => Macro(() => new B.OpBox(par, s, "Bin"));
 	const rel = (s: string) => Macro(() => new B.OpBox(par, s, "Rel"));
+	const prime = (s: string) => Macro(() => new B.OpBox(par, s, "Prime"));
 	const sym = (s: string) => Macro(() => new B.CBox(par, s));
 	const punct = (s: string) => Macro(() => new B.OpBox(par, s, "Punct"));
 
@@ -292,17 +293,17 @@ export function OperatorMacros(par: Param, macros: Scope<B.Box>) {
 	macros.twolowline = sym("\u2017");
 	macros.enleadertwodots = sym("\u2025");
 	macros.unicodeellipsis = sym("\u2026");
-	macros.prime = sym("\u2032");
-	macros.dprime = sym("\u2033");
-	macros.trprime = sym("\u2034");
-	macros.backprime = sym("\u2035");
-	macros.backdprime = sym("\u2036");
-	macros.backtrprime = sym("\u2037");
+	macros.prime = prime("\u2032");
+	macros.dprime = prime("\u2033");
+	macros.trprime = prime("\u2034");
+	macros.backprime = prime("\u2035");
+	macros.backdprime = prime("\u2036");
+	macros.backtrprime = prime("\u2037");
 	macros.caretinsert = sym("\u2038");
 	macros.Exclam = sym("\u203C");
 	macros.hyphenbullet = sym("\u2043");
 	macros.Question = sym("\u2047");
-	macros.qprime = sym("\u2057");
+	macros.qprime = prime("\u2057");
 	macros.euro = sym("\u20AC");
 	macros.enclosecircle = sym("\u20DD");
 	macros.enclosesquare = sym("\u20DE");
