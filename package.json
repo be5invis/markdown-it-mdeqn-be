@@ -1,6 +1,6 @@
 {
   "name": "markdown-it-mdeqn-be",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Basic Geometric library for Type Design",
   "engineStrict": true,
   "engines": {
