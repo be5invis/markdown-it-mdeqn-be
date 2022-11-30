@@ -651,7 +651,7 @@ export class SqrtInternalBox extends Box {
 			style({ marginTop: em(this.param.FRAC_PADDING_DEN) }),
 			Span(
 				{ class: "sk" },
-				style({ padding: `${em(this.param.FRAC_PADDING_DEN)},0,0` }),
+				style({ padding: `${em(this.param.FRAC_PADDING_DEN)} 0 0` }),
 				this.content.write()
 			)
 		);

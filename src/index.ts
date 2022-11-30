@@ -8,7 +8,7 @@ export = (md: MarkdownIt, options: any) => {
 	const parameters = createParam(options.layoutParams || {});
 	const scope = initScope(parameters);
 
-	const defaultFence = md.renderer.rules.fence.bind(md.renderer.rules);
+	const defaultFence = md.renderer.rules.fence!.bind(md.renderer.rules);
 	md.renderer.rules.fence = (tokens, idx, options, env, slf) => {
 		const token = tokens[idx];
 		const code = token.content.trim();
@@ -27,7 +27,7 @@ export = (md: MarkdownIt, options: any) => {
 		return defaultFence(tokens, idx, options, env, slf);
 	};
 
-	const defaultBacktick = md.renderer.rules.code_inline.bind(md.renderer.rules);
+	const defaultBacktick = md.renderer.rules.code_inline!.bind(md.renderer.rules);
 	md.renderer.rules.code_inline = (tokens, idx, options, env, slf) => {
 		const token = tokens[idx];
 		if (isValidEquation(token.content)) {
