@@ -5,7 +5,7 @@ import { renderDisplay, renderInline } from "./renderer";
 import { initScope } from "./scope";
 
 export = (md: MarkdownIt, options: any) => {
-	const parameters = createParam(options.layoutParams || {});
+	const parameters = createParam((options ? options.layoutParams : {}) || {});
 	const scope = initScope(parameters);
 
 	const defaultFence = md.renderer.rules.fence!.bind(md.renderer.rules);
